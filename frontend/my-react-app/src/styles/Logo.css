@@ -1,0 +1,23 @@
+@font-face {
+  font-family: 'Josefin Sans';
+  src: url('../assets/Josefin-Sans-regular.woff') format('woff2');
+  font-weight: bolder;
+  font-style: normal;
+  font-display: swap;
+}
+
+#logo {
+  display: flex;
+  align-items: center;
+
+  img {
+    height: 50px;
+  }
+
+  h1 {
+    font-family: 'Josefin Sans', sans-serif;
+    color: darkorange;
+
+    margin: 0;
+  }
+}
