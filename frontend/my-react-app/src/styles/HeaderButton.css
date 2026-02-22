@@ -1,11 +1,13 @@
 .header-button {
-  background: none;
+  background: white;
   border: 1px solid darkorange;
   border-radius: 5px;
   padding: 7px;
 
   display: flex;
   align-items: center;
+
+  transition: filter 0.3s ease;
 
   img {
     filter: brightness(0) saturate(100%) invert(54%) sepia(78%) saturate(1567%) hue-rotate(359deg) brightness(101%) contrast(107%);
@@ -18,4 +20,8 @@
   img {
     filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7452%) hue-rotate(61deg) brightness(99%) contrast(105%);
   }
+}
+
+.header-button:hover {
+  filter: brightness(0.7);
 }
