@@ -26,8 +26,14 @@ header {
   }
 }
 
+search {
+  margin: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
 main {
-  padding: 8px;
+  margin: 8px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;

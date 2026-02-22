@@ -1,0 +1,21 @@
+.search-button {
+  background-color: white;
+  border: 2px solid darkorange;
+  border-radius: 10px;
+  padding: 0 20px;
+
+  font-weight: bold;
+  font-size: medium;
+  color: darkorange;
+
+  display: flex;
+  align-items: center;
+
+  img {
+    filter: brightness(0) saturate(100%) invert(54%) sepia(78%) saturate(1567%) hue-rotate(359deg) brightness(101%) contrast(107%);
+  }
+
+  span {
+    padding: 0 10px;
+  }
+}
