@@ -18,6 +18,7 @@ import sort from "./assets/sort.svg";
 import Card from "./Card";
 import Logo from "./Logo";
 import HeaderButton from "./HeaderButton";
+import SearchBar from "./SearchBar";
 
 const locations = [
   {
@@ -106,6 +107,9 @@ function App() {
           ))}
         </div>
       </header>
+      <search>
+        <SearchBar />
+      </search>
       <main>
         {locations.map(({ name, image, numRooms }) => (
           <Card name={name} image={image} numRooms={numRooms} />
