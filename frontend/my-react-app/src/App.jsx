@@ -19,6 +19,7 @@ import Card from "./Card";
 import Logo from "./Logo";
 import HeaderButton from "./HeaderButton";
 import SearchBar from "./SearchBar";
+import SearchButton from "./SearchButton";
 
 const locations = [
   {
@@ -108,7 +109,9 @@ function App() {
         </div>
       </header>
       <search>
+        <SearchButton name="Filter" icon={filter} />
         <SearchBar />
+        <SearchButton name="Sort" icon={sort} />
       </search>
       <main>
         {locations.map(({ name, image, numRooms }) => (
