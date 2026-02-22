@@ -30,7 +30,26 @@ search {
   margin: 12px;
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 10px;
+
+  @media (max-width: 900px) {
+    #filter-button {
+      grid-area: filter;
+    }
+
+    #search-bar {
+      grid-area: search;
+    }
+
+    #sort-button {
+      grid-area: sort;
+    }
+
+    display: grid;
+    grid-template-areas:
+      "search search search"
+      "filter . sort" ;
+  }
 }
 
 main {
