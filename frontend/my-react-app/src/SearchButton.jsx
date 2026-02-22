@@ -1,8 +1,8 @@
 import "./styles/SearchButton.css";
 
-function SearchButton({ name, icon }) {
+function SearchButton({ id, name, icon }) {
   return (
-    <button className="search-button">
+    <button id={id} className="search-button">
       <img src={icon} alt={name} />
       <span>{name}</span>
     </button>

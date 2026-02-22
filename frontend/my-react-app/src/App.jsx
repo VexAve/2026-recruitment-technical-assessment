@@ -109,9 +109,9 @@ function App() {
         </div>
       </header>
       <search>
-        <SearchButton name="Filter" icon={filter} />
+        <SearchButton id="filter-button" name="Filter" icon={filter} />
         <SearchBar />
-        <SearchButton name="Sort" icon={sort} />
+        <SearchButton id="sort-button" name="Sort" icon={sort} />
       </search>
       <main>
         {locations.map(({ name, image, numRooms }) => (
