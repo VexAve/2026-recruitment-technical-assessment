@@ -14,10 +14,16 @@
     height: 50px;
   }
 
+  transition: filter 0.3s ease;
+
   h1 {
     font-family: 'Josefin Sans', sans-serif;
     color: darkorange;
 
     margin: 0;
   }
+}
+
+#logo:hover {
+  filter: brightness(1.2);
 }
