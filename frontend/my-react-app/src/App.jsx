@@ -10,6 +10,7 @@ import civilBuilding from "./assets/civilBuilding.webp";
 import colombo from "./assets/colombo.webp";
 import cseBuilding from "./assets/cseBuilding.webp";
 import Card from "./Card";
+import Logo from "./Logo";
 
 const locations = [
   {
@@ -67,6 +68,9 @@ const locations = [
 function App() {
   return (
     <div id="app">
+      <header>
+        <Logo />
+      </header>
       <main>
         {locations.map(({ name, image, numRooms }) => (
           <Card name={name} image={image} numRooms={numRooms} />
