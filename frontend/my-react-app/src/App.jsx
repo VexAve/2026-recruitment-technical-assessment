@@ -67,7 +67,6 @@ const locations = [
 function App() {
   return (
     <div id="app">
-      <h1>Hello</h1>
       {locations.map(({ name, image, numRooms }) => (
         <Card name={name} image={image} numRooms={numRooms} />
       ))}
