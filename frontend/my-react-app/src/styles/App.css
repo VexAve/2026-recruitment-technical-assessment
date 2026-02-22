@@ -1,5 +1,5 @@
 body {
-  margin:0;
+  margin: 0;
 }
 
 #app {
@@ -49,7 +49,7 @@ search {
     display: grid;
     grid-template-areas:
       "search search search"
-      "filter . sort" ;
+      "filter . sort";
   }
 }
 

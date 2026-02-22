@@ -18,7 +18,9 @@ function Card({ name, image, numRooms }) {
       {isSmallScreen && <span className="name">{name}</span>}
       <div className="num-rooms">
         <div className="green-circle"></div>
-        {isSmallScreen ? `${numRooms} / ${numRooms}` : `${numRooms} rooms available`}
+        {isSmallScreen
+          ? `${numRooms} / ${numRooms}`
+          : `${numRooms} rooms available`}
       </div>
       {!isSmallScreen && <div className="name">{name}</div>}
     </div>
