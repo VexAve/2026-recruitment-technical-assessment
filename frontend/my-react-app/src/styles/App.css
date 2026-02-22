@@ -4,9 +4,16 @@
 }
 
 header {
+  background-color: white;
+  border-bottom: 2px solid lightgray;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 
   #header-buttons {
     display: flex;
