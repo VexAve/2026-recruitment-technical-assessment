@@ -4,6 +4,9 @@
   border-radius: 10px;
   background-size: cover;
 
+  background-blend-mode: darken;
+  transition: background-color 0.3s ease;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -35,4 +38,8 @@
       align-self: center;
     }
   }
+}
+
+.card:hover {
+  background-color: orange;
 }
