@@ -3,6 +3,17 @@
   font-weight: bold;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  #header-buttons {
+    display: flex;
+    gap: 10px;
+  }
+}
+
 main {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
