@@ -1,0 +1,38 @@
+.card {
+  height: 300px;
+  padding: 10px;
+  border-radius: 10px;
+  background-size: cover;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .name {
+    background-color: darkorange;
+    padding: 10px;
+    color: white;
+    border-radius: 10px;
+  }
+
+  .num-rooms {
+    display: flex;
+
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+
+    align-self: flex-end;
+
+    .green-circle {
+      background-color: limegreen;
+      height: 10px;
+      aspect-ratio: 1 / 1;
+
+      margin-right: 10px;
+      border-radius: 50%;
+      
+      align-self: center;
+    }
+  }
+}
