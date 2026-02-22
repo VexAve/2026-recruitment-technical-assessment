@@ -17,6 +17,7 @@ function Logo() {
         alt="Freerooms logo"
         onClick={onClick}
       />
+      <h1 id="freerooms">Freerooms</h1>
     </div>
   );
 }
