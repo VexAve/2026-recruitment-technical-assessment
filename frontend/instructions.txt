@@ -1,0 +1,7 @@
+Once you're in the frontend directory:
+
+$ cd my-react-app/
+$ npm i
+$ npm run dev
+
+The server should start.
