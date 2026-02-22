@@ -1,5 +1,8 @@
 #search-bar {
   position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 20px;
 
   img {
     position: absolute;
@@ -13,6 +16,7 @@
   input {
     font-size: medium;
     height: 40px;
+    width: calc(100% - 43px);
     border: 1px solid grey;
     border-radius: 5px;
     padding-left: 40px;
