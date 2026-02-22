@@ -9,8 +9,15 @@ import businessSchool from "./assets/businessSchool.webp";
 import civilBuilding from "./assets/civilBuilding.webp";
 import colombo from "./assets/colombo.webp";
 import cseBuilding from "./assets/cseBuilding.webp";
+import darkMode from "./assets/darkMode.svg";
+import filter from "./assets/filter.svg";
+import gridView from "./assets/gridView.svg";
+import map from "./assets/map.svg";
+import search from "./assets/search.svg";
+import sort from "./assets/sort.svg";
 import Card from "./Card";
 import Logo from "./Logo";
+import HeaderButton from "./HeaderButton";
 
 const locations = [
   {
@@ -65,11 +72,39 @@ const locations = [
   },
 ];
 
+const headerButtons = [
+  {
+    name: "Search",
+    icon: search,
+    selected: false,
+  },
+  {
+    name: "Grid View",
+    icon: gridView,
+    selected: true,
+  },
+  {
+    name: "Map",
+    icon: map,
+    selected: false,
+  },
+  {
+    name: "Dark Mode",
+    icon: darkMode,
+    selected: false,
+  },
+];
+
 function App() {
   return (
     <div id="app">
       <header>
         <Logo />
+        <div id="header-buttons">
+          {headerButtons.map(({ name, icon, selected }) => (
+            <HeaderButton name={name} icon={icon} selected={selected} />
+          ))}
+        </div>
       </header>
       <main>
         {locations.map(({ name, image, numRooms }) => (
