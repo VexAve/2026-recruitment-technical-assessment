@@ -63,7 +63,7 @@ const parse_handwriting = (recipeName: string): string | null => {
   recipeName = recipeName.trim();
 
   // Squash multiple whitespaces between words into a single whitespace
-  recipeName = recipeName.replace(/\s+/, " ");
+  recipeName = recipeName.replace(/\s+/g, " ");
 
   // Uppercase for the first letter of each word, lowercase for the rest
   recipeName = recipeName
