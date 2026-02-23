@@ -227,4 +227,89 @@ describe("Dylan's Tests", () => {
       expect(res.status).toBe(200);
     });
   });
+
+  describe("Task 2", () => {
+    const postEntry = async (entry) => {
+      return await request("http://localhost:8080").post("/entry").send(entry);
+    };
+
+    test.each([" recipe", "ingredient ", "invalid"])(
+      "error on invalid types",
+      async (type) => {
+        const res = await postEntry({ type, name: "Food", cookTime: 0 });
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test.each([" recipe", "ingredient ", "invalid"])(
+      "error on invalid types: '%s'",
+      async (type) => {
+        const res = await postEntry({ type, name: "Food", cookTime: 0 });
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test.each([-1, -67, -99999])(
+      "error on invalid cookTimes: %d",
+      async (cookTime) => {
+        const res = await postEntry({
+          type: "ingredient",
+          name: "Food",
+          cookTime,
+        });
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test("success case", async () => {
+      const res1 = await postEntry({
+        type: "ingredient",
+        name: "Food",
+        cookTime: 0,
+      });
+      expect(res1.status).toBe(200);
+
+      const res2 = await postEntry({
+        type: "ingredient",
+        name: "Beverage",
+        requiredItems: [{ name: "Food", quantity: 1 }],
+      });
+      expect(res2.status).toBe(200);
+
+      const res3 = await postEntry({ type: "ingredient", name: "Snack", cookTime: 100 });
+      expect(res3.status).toBe(200);
+    });
+
+    test("error on posting entires with the same name", async () => {
+      const res1 = await postEntry({
+        type: "ingredient",
+        name: "Food",
+        cookTime: 42,
+      });
+      expect(res1.status).toBe(400);
+
+      const res2 = await postEntry({
+        type: "recipe",
+        name: "Snack",
+        requiredItems: [{ name: "Drink", quantity: 1 }],
+      });
+      expect(res2.status).toBe(400);
+
+      const res3 = await postEntry({
+        type: "ingredient",
+        name: "Drink",
+        cookTime: 21,
+      });
+      expect(res3.status).toBe(400);
+    });
+
+    test("error on requiredItems having multiple elements per name", async () => {
+      const res = await postEntry({
+        type: "ingredient",
+        name: "Munch",
+        requiredItems: [{ name: "Drink", quantity: 1 }, { name: "Drink", quantity: 1 }],
+      });
+      expect(res.status).toBe(400);
+    });
+  });
 });
