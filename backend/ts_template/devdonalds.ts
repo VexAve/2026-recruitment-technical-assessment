@@ -87,7 +87,7 @@ const addCookbookEntry = (entry: recipe | ingredient): void => {
   } else if (
     entry.type === "recipe" &&
     entry.requiredItems.length !==
-      new Set(entry.requiredItems.map((item: requiredItem) => item.name)).size
+      new Set(entry.requiredItems.map((item) => item.name)).size
   ) {
     throw new Error("recipe requiredItems can only have one element per name");
   } else {

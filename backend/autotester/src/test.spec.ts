@@ -271,7 +271,7 @@ describe("Dylan's Tests", () => {
 
       const res2 = await postEntry({
         type: "ingredient",
-        name: "Beverage",
+        name: "Drink",
         requiredItems: [{ name: "Food", quantity: 1 }],
       });
       expect(res2.status).toBe(200);
@@ -305,9 +305,9 @@ describe("Dylan's Tests", () => {
 
     test("error on requiredItems having multiple elements per name", async () => {
       const res = await postEntry({
-        type: "ingredient",
+        type: "recipe",
         name: "Munch",
-        requiredItems: [{ name: "Drink", quantity: 1 }, { name: "Drink", quantity: 1 }],
+        requiredItems: [{ name: "Drink", quantity: 1 }, { name: "Drink", quantity: 2 }],
       });
       expect(res.status).toBe(400);
     });
