@@ -12,10 +12,12 @@ interface requiredItem {
 }
 
 interface recipe extends cookbookEntry {
+  type: "recipe";
   requiredItems: requiredItem[];
 }
 
 interface ingredient extends cookbookEntry {
+  type: "ingredient";
   cookTime: number;
 }
 
@@ -26,7 +28,7 @@ const app = express();
 app.use(express.json());
 
 // Store your recipes here!
-const cookbook: Record<string, cookbookEntry> = {};
+const cookbook: Record<string, recipe | ingredient> = {};
 
 // Task 1 helper (don't touch)
 app.post("/parse", (req:Request, res:Response) => {
@@ -69,18 +71,18 @@ const parse_handwriting = (recipeName: string): string | null => {
 
 // [TASK 2] ====================================================================
 // Endpoint that adds a CookbookEntry to your magical cookbook
-const addCookbookEntry = (entry: cookbookEntry): void => {
+const addCookbookEntry = (entry: recipe | ingredient): void => {
   if (entry.type !== "recipe" && entry.type !== "ingredient") {
     throw new Error("type can only be 'recipe' or 'ingredient'");
-  } else if ("cookTime" in entry && (entry as ingredient).cookTime < 0) {
+  } else if (entry.type === "ingredient" && entry.cookTime < 0) {
     throw new Error("cookTime can only be greater than or equal to 0");
   } else if (Object.values(cookbook).some((item) => item.name === entry.name)) {
     throw new Error("entry names must be unique");
   } else if (
-    "requiredItems" in entry &&
-    (entry as recipe).requiredItems.length !==
+    entry.type === "recipe" &&
+    entry.requiredItems.length !==
       new Set(
-        (entry as recipe).requiredItems.map((item: requiredItem) => item.name),
+        entry.requiredItems.map((item: requiredItem) => item.name),
       ).size
   ) {
     throw new Error("recipe requiredItems can only have one element per name");
