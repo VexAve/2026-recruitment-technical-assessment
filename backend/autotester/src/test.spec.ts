@@ -187,6 +187,7 @@ describe("Dylan's Tests", () => {
       async (input, msg) => {
         const res = await parseInput(input);
         expect(res.body).toStrictEqual({ msg });
+        expect(res.status).toBe(200);
       },
     );
 
@@ -199,6 +200,7 @@ describe("Dylan's Tests", () => {
       async (input, msg) => {
         const res = await parseInput(input);
         expect(res.body).toStrictEqual({ msg });
+        expect(res.status).toBe(200);
       },
     );
 
@@ -211,6 +213,7 @@ describe("Dylan's Tests", () => {
       async (input, msg) => {
         const res = await parseInput(input);
         expect(res.body).toStrictEqual({ msg });
+        expect(res.status).toBe(200);
       },
     );
 
@@ -218,12 +221,10 @@ describe("Dylan's Tests", () => {
       ["Food  Number  One", "Food Number One"],
       ["   Food---Number___Two   ", "Food Number Two"],
       ["_- _- Food _- _- Number _- _- Three _- _-", "Food Number Three"],
-    ])(
-      "remove extra whitespaces: '%s'",
-      async (input, msg) => {
-        const res = await parseInput(input);
-        expect(res.body).toStrictEqual({ msg });
-      },
-    );
+    ])("remove extra whitespaces: '%s'", async (input, msg) => {
+      const res = await parseInput(input);
+      expect(res.body).toStrictEqual({ msg });
+      expect(res.status).toBe(200);
+    });
   });
 });
