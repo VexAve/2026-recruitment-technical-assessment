@@ -51,7 +51,7 @@ app.post("/parse", (req:Request, res:Response) => {
 });
 
 // [TASK 1] ====================================================================
-// Takes in a recipeName and returns it in a form that 
+// Takes in a recipeName and returns it in a form that
 const parse_handwriting = (recipeName: string): string | null => {
   // Replace hyphens and underscores with whitespace
   recipeName = recipeName.replace(/[-_]/g, " ");
@@ -73,7 +73,7 @@ const parse_handwriting = (recipeName: string): string | null => {
 
   // Return null if recipeName is an empty string
   return recipeName || null;
-}
+};
 
 // [TASK 2] ====================================================================
 // Endpoint that adds a CookbookEntry to your magical cookbook
@@ -87,15 +87,13 @@ const addCookbookEntry = (entry: recipe | ingredient): void => {
   } else if (
     entry.type === "recipe" &&
     entry.requiredItems.length !==
-      new Set(
-        entry.requiredItems.map((item: requiredItem) => item.name),
-      ).size
+      new Set(entry.requiredItems.map((item: requiredItem) => item.name)).size
   ) {
     throw new Error("recipe requiredItems can only have one element per name");
   } else {
     cookbook[entry.name] = entry;
   }
-}
+};
 
 app.post("/entry", (req: Request, res: Response) => {
   try {
@@ -112,7 +110,7 @@ const summarize_recipe = (name: string): recipeSummary => {
   if (!cookbook[name]) {
     throw new Error("a recipe with the corresponding name cannot be found");
   } else if (cookbook[name].type !== "recipe") {
-    throw new Error("the searched name is NOT a recipe name")
+    throw new Error("the searched name is NOT a recipe name");
   }
 
   let cookTime = 0;
@@ -125,7 +123,7 @@ const summarize_recipe = (name: string): recipeSummary => {
 
     if (!currEntry) {
       throw new Error(
-        "the recipe contains recipes or ingredients that aren't in the cookbook"
+        "the recipe contains recipes or ingredients that aren't in the cookbook",
       );
     }
 
@@ -133,16 +131,18 @@ const summarize_recipe = (name: string): recipeSummary => {
       stack = stack.concat(currEntry.requiredItems);
     } else {
       cookTime += currEntry.cookTime * currNode.quantity;
-      ingredientsMap[currNode.name] = (ingredientsMap[currNode.name] || 0) + currNode.quantity;
+      ingredientsMap[currNode.name] =
+        (ingredientsMap[currNode.name] || 0) + currNode.quantity;
     }
   }
 
-  const ingredients = Object.entries(ingredientsMap).map(
-    ([key, value]) => ({ name: key, quantity: value }),
-  );
+  const ingredients = Object.entries(ingredientsMap).map(([key, value]) => ({
+    name: key,
+    quantity: value,
+  }));
 
   return { name, cookTime, ingredients };
-}
+};
 
 app.get("/summary", (req: Request, res: Request) => {
   try {
