@@ -21,6 +21,12 @@ interface ingredient extends cookbookEntry {
   cookTime: number;
 }
 
+interface recipeSummary {
+  name: string;
+  cookTime: number;
+  ingredients: requiredItem[];
+}
+
 // =============================================================================
 // ==== HTTP Endpoint Stubs ====================================================
 // =============================================================================
@@ -102,10 +108,48 @@ app.post("/entry", (req: Request, res: Response) => {
 
 // [TASK 3] ====================================================================
 // Endpoint that returns a summary of a recipe that corresponds to a query name
-app.get("/summary", (req:Request, res:Request) => {
-  // TODO: implement me
-  res.status(500).send("not yet implemented!")
+const summarize_recipe = (name: string): recipeSummary => {
+  if (!cookbook[name]) {
+    throw new Error("a recipe with the corresponding name cannot be found");
+  } else if (cookbook[name].type !== "recipe") {
+    throw new Error("the searched name is NOT a recipe name")
+  }
 
+  let cookTime = 0;
+  const ingredientsMap: Record<string, number> = {};
+
+  let stack = [{ name, quantity: 1 }];
+  while (stack.length) {
+    const currNode = stack.pop();
+    const currEntry = cookbook[currNode.name];
+
+    if (!currEntry) {
+      throw new Error(
+        "the recipe contains recipes or ingredients that aren't in the cookbook"
+      );
+    }
+
+    if (currEntry.type === "recipe") {
+      stack = stack.concat(currEntry.requiredItems);
+    } else {
+      cookTime += currEntry.cookTime * currNode.quantity;
+      ingredientsMap[currNode.name] = (ingredientsMap[currNode.name] || 0) + currNode.quantity;
+    }
+  }
+
+  const ingredients = Object.entries(ingredientsMap).map(
+    ([key, value]) => ({ name: key, quantity: value }),
+  );
+
+  return { name, cookTime, ingredients };
+}
+
+app.get("/summary", (req: Request, res: Request) => {
+  try {
+    res.json(summarize_recipe(req.query.name));
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 // =============================================================================
