@@ -9,6 +9,8 @@
 
   transition: filter 0.3s ease;
 
+  cursor: pointer;
+
   img {
     filter: brightness(0) saturate(100%) invert(54%) sepia(78%) saturate(1567%)
       hue-rotate(359deg) brightness(101%) contrast(107%);
