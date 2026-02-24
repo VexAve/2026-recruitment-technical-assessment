@@ -12,11 +12,19 @@ interface requiredItem {
 }
 
 interface recipe extends cookbookEntry {
+  type: "recipe";
   requiredItems: requiredItem[];
 }
 
 interface ingredient extends cookbookEntry {
+  type: "ingredient";
   cookTime: number;
+}
+
+interface recipeSummary {
+  name: string;
+  cookTime: number;
+  ingredients: requiredItem[];
 }
 
 // =============================================================================
@@ -26,7 +34,7 @@ const app = express();
 app.use(express.json());
 
 // Store your recipes here!
-const cookbook: any = null;
+const cookbook: Record<string, recipe | ingredient> = {};
 
 // Task 1 helper (don't touch)
 app.post("/parse", (req:Request, res:Response) => {
@@ -43,26 +51,109 @@ app.post("/parse", (req:Request, res:Response) => {
 });
 
 // [TASK 1] ====================================================================
-// Takes in a recipeName and returns it in a form that 
+// Takes in a recipeName and returns it in a form that
 const parse_handwriting = (recipeName: string): string | null => {
-  // TODO: implement me
-  return recipeName
-}
+  // Replace hyphens and underscores with whitespace
+  recipeName = recipeName.replace(/[-_]/g, " ");
+
+  // Remove characters that are not letters or whitespaces
+  recipeName = recipeName.replace(/[^a-zA-Z\s]/g, "");
+
+  // Remove leading and trailing whitespace
+  recipeName = recipeName.trim();
+
+  // Squash multiple whitespaces between words into a single whitespace
+  recipeName = recipeName.replace(/\s+/g, " ");
+
+  // Uppercase for the first letter of each word, lowercase for the rest
+  recipeName = recipeName
+    .split(" ")
+    .map((str) => str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase())
+    .join(" ");
+
+  // Return null if recipeName is an empty string
+  return recipeName || null;
+};
 
 // [TASK 2] ====================================================================
 // Endpoint that adds a CookbookEntry to your magical cookbook
-app.post("/entry", (req:Request, res:Response) => {
-  // TODO: implement me
-  res.status(500).send("not yet implemented!")
+const addCookbookEntry = (entry: recipe | ingredient): void => {
+  if (entry.type !== "recipe" && entry.type !== "ingredient") {
+    throw new Error("type can only be 'recipe' or 'ingredient'");
+  } else if (entry.type === "ingredient" && entry.cookTime < 0) {
+    throw new Error("cookTime can only be greater than or equal to 0");
+  } else if (Object.values(cookbook).some((item) => item.name === entry.name)) {
+    throw new Error("entry names must be unique");
+  } else if (
+    entry.type === "recipe" &&
+    entry.requiredItems.length !==
+      new Set(entry.requiredItems.map((item) => item.name)).size
+  ) {
+    throw new Error("recipe requiredItems can only have one element per name");
+  } else {
+    cookbook[entry.name] = entry;
+  }
+};
 
+app.post("/entry", (req: Request, res: Response) => {
+  try {
+    addCookbookEntry(req.body);
+    res.json({});
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 // [TASK 3] ====================================================================
 // Endpoint that returns a summary of a recipe that corresponds to a query name
-app.get("/summary", (req:Request, res:Request) => {
-  // TODO: implement me
-  res.status(500).send("not yet implemented!")
+const summarizeRecipe = (name: string): recipeSummary => {
+  if (!cookbook[name]) {
+    throw new Error("a recipe with the corresponding name cannot be found");
+  } else if (cookbook[name].type !== "recipe") {
+    throw new Error("the searched name is NOT a recipe name");
+  }
 
+  let cookTime = 0;
+  const ingredientsMap: Record<string, number> = {};
+
+  let stack = [{ name, quantity: 1 }];
+  while (stack.length) {
+    const currNode = stack.pop();
+    const currEntry = cookbook[currNode.name];
+
+    if (!currEntry) {
+      throw new Error(
+        "the recipe contains recipes or ingredients that aren't in the cookbook",
+      );
+    }
+
+    if (currEntry.type === "recipe") {
+      const nextNodes = currEntry.requiredItems.map(({ name, quantity }) => ({
+        name,
+        quantity: currNode.quantity * quantity,
+      }));
+      stack = stack.concat(nextNodes);
+    } else {
+      cookTime += currEntry.cookTime * currNode.quantity;
+      ingredientsMap[currNode.name] =
+        (ingredientsMap[currNode.name] || 0) + currNode.quantity;
+    }
+  }
+
+  const ingredients = Object.entries(ingredientsMap).map(([key, value]) => ({
+    name: key,
+    quantity: value,
+  }));
+
+  return { name, cookTime, ingredients };
+};
+
+app.get("/summary", (req: Request, res: Request) => {
+  try {
+    res.json(summarizeRecipe(req.query.name));
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 // =============================================================================

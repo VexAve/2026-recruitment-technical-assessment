@@ -1,161 +1,419 @@
 const request = require("supertest");
 
-describe("Task 1", () => {
-  describe("POST /parse", () => {
-    const getTask1 = async (inputStr) => {
+describe("Provided Tests", () => {
+  describe("Task 1", () => {
+    describe("POST /parse", () => {
+      const getTask1 = async (inputStr) => {
+        return await request("http://localhost:8080")
+          .post("/parse")
+          .send({ input: inputStr });
+      };
+
+      it("example1", async () => {
+        const response = await getTask1("Riz@z RISO00tto!");
+        expect(response.body).toStrictEqual({ msg: "Rizz Risotto" });
+      });
+
+      it("example2", async () => {
+        const response = await getTask1("alpHa-alFRedo");
+        expect(response.body).toStrictEqual({ msg: "Alpha Alfredo" });
+      });
+
+      it("error case", async () => {
+        const response = await getTask1("");
+        expect(response.status).toBe(400);
+      });
+    });
+  });
+
+  describe("Task 2", () => {
+    describe("POST /entry", () => {
+      const putTask2 = async (data) => {
+        return await request("http://localhost:8080").post("/entry").send(data);
+      };
+
+      it("Add Ingredients", async () => {
+        const entries = [
+          { type: "ingredient", name: "Egg", cookTime: 6 },
+          { type: "ingredient", name: "Lettuce", cookTime: 1 },
+        ];
+        for (const entry of entries) {
+          const resp = await putTask2(entry);
+          expect(resp.status).toBe(200);
+          expect(resp.body).toStrictEqual({});
+        }
+      });
+
+      it("Add Recipe", async () => {
+        const meatball = {
+          type: "recipe",
+          name: "Meatball",
+          requiredItems: [{ name: "Beef", quantity: 1 }],
+        };
+        const resp1 = await putTask2(meatball);
+        expect(resp1.status).toBe(200);
+      });
+
+      it("Congratulations u burnt the pan pt2", async () => {
+        const resp = await putTask2({
+          type: "ingredient",
+          name: "beef",
+          cookTime: -1,
+        });
+        expect(resp.status).toBe(400);
+      });
+
+      it("Congratulations u burnt the pan pt3", async () => {
+        const resp = await putTask2({
+          type: "pan",
+          name: "pan",
+          cookTime: 20,
+        });
+        expect(resp.status).toBe(400);
+      });
+
+      it("Unique names", async () => {
+        const resp = await putTask2({
+          type: "ingredient",
+          name: "Beef",
+          cookTime: 10,
+        });
+        expect(resp.status).toBe(200);
+
+        const resp2 = await putTask2({
+          type: "ingredient",
+          name: "Beef",
+          cookTime: 8,
+        });
+        expect(resp2.status).toBe(400);
+
+        const resp3 = await putTask2({
+          type: "recipe",
+          name: "Beef",
+          cookTime: 8,
+        });
+        expect(resp3.status).toBe(400);
+      });
+    });
+  });
+
+  describe("Task 3", () => {
+    describe("GET /summary", () => {
+      const postEntry = async (data) => {
+        return await request("http://localhost:8080").post("/entry").send(data);
+      };
+
+      const getTask3 = async (name) => {
+        return await request("http://localhost:8080").get(
+          `/summary?name=${name}`,
+        );
+      };
+
+      it("What is bro doing - Get empty cookbook", async () => {
+        const resp = await getTask3("nothing");
+        expect(resp.status).toBe(400);
+      });
+
+      it("What is bro doing - Get ingredient", async () => {
+        const resp = await postEntry({
+          type: "ingredient",
+          name: "beef",
+          cookTime: 2,
+        });
+        expect(resp.status).toBe(200);
+
+        const resp2 = await getTask3("beef");
+        expect(resp2.status).toBe(400);
+      });
+
+      it("Unknown missing item", async () => {
+        const cheese = {
+          type: "recipe",
+          name: "Cheese",
+          requiredItems: [{ name: "Not Real", quantity: 1 }],
+        };
+        const resp1 = await postEntry(cheese);
+        expect(resp1.status).toBe(200);
+
+        const resp2 = await getTask3("Cheese");
+        expect(resp2.status).toBe(400);
+      });
+
+      it("Bro cooked", async () => {
+        const meatball = {
+          type: "recipe",
+          name: "Skibidi",
+          requiredItems: [{ name: "Bruh", quantity: 1 }],
+        };
+        const resp1 = await postEntry(meatball);
+        expect(resp1.status).toBe(200);
+
+        const resp2 = await postEntry({
+          type: "ingredient",
+          name: "Bruh",
+          cookTime: 2,
+        });
+        expect(resp2.status).toBe(200);
+
+        const resp3 = await getTask3("Skibidi");
+        expect(resp3.status).toBe(200);
+      });
+    });
+  });
+});
+
+describe("Dylan's Tests", () => {
+  describe("Task 1", () => {
+    const parseInput = async (input) => {
       return await request("http://localhost:8080")
         .post("/parse")
-        .send({ input: inputStr });
+        .send({ input });
     };
 
-    it("example1", async () => {
-      const response = await getTask1("Riz@z RISO00tto!");
-      expect(response.body).toStrictEqual({ msg: "Rizz Risotto" });
-    });
+    test.each(["", "        ", "-_!@#$%^&*()"])(
+      "error on empty string: '%s'",
+      async (input) => {
+        const res = await parseInput(input);
+        expect(res.status).toBe(400);
+      },
+    );
 
-    it("example2", async () => {
-      const response = await getTask1("alpHa-alFRedo");
-      expect(response.body).toStrictEqual({ msg: "Alpha Alfredo" });
-    });
+    test.each([
+      ["Food-Number-One", "Food Number One"],
+      ["Food_Number_Two", "Food Number Two"],
+      ["-_Food--Number__Three_-", "Food Number Three"],
+    ])(
+      "replace hyphens and underscores with whitespaces: '%s'",
+      async (input, msg) => {
+        const res = await parseInput(input);
+        expect(res.body).toStrictEqual({ msg });
+        expect(res.status).toBe(200);
+      },
+    );
 
-    it("error case", async () => {
-      const response = await getTask1("");
-      expect(response.status).toBe(400);
+    test.each([
+      ["Foo0d Number 1O0ne3", "Food Number One"],
+      ["F!o@o#d$_%N^u&m*b(e)r+-=T{w}o:", "Food Number Two"],
+      ["\nFood \tNumber \\Three", "Food Number Three"],
+    ])(
+      "remove characters that aren't letters or whitespaces: '%s'",
+      async (input, msg) => {
+        const res = await parseInput(input);
+        expect(res.body).toStrictEqual({ msg });
+        expect(res.status).toBe(200);
+      },
+    );
+
+    test.each([
+      ["food number one", "Food Number One"],
+      ["fOoD nUmBeR tWo", "Food Number Two"],
+      ["fOOd nUMBER tHREE", "Food Number Three"],
+    ])(
+      "capital first letters, lowercase for other letters: '%s'",
+      async (input, msg) => {
+        const res = await parseInput(input);
+        expect(res.body).toStrictEqual({ msg });
+        expect(res.status).toBe(200);
+      },
+    );
+
+    test.each([
+      ["Food  Number  One", "Food Number One"],
+      ["   Food---Number___Two   ", "Food Number Two"],
+      ["_- _- Food _- _- Number _- _- Three _- _-", "Food Number Three"],
+    ])("remove extra whitespaces: '%s'", async (input, msg) => {
+      const res = await parseInput(input);
+      expect(res.body).toStrictEqual({ msg });
+      expect(res.status).toBe(200);
     });
   });
-});
 
-describe("Task 2", () => {
-  describe("POST /entry", () => {
-    const putTask2 = async (data) => {
-      return await request("http://localhost:8080").post("/entry").send(data);
+  describe("Task 2", () => {
+    const postEntry = async (entry) => {
+      return await request("http://localhost:8080").post("/entry").send(entry);
     };
 
-    it("Add Ingredients", async () => {
-      const entries = [
-        { type: "ingredient", name: "Egg", cookTime: 6 },
-        { type: "ingredient", name: "Lettuce", cookTime: 1 },
-      ];
-      for (const entry of entries) {
-        const resp = await putTask2(entry);
-        expect(resp.status).toBe(200);
-        expect(resp.body).toStrictEqual({});
-      }
+    test.each([" recipe", "ingredient ", "invalid"])(
+      "error on invalid types",
+      async (type) => {
+        const res = await postEntry({ type, name: "Food", cookTime: 0 });
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test.each([" recipe", "ingredient ", "invalid"])(
+      "error on invalid types: '%s'",
+      async (type) => {
+        const res = await postEntry({ type, name: "Food", cookTime: 0 });
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test.each([-1, -67, -99999])(
+      "error on invalid cookTimes: %d",
+      async (cookTime) => {
+        const res = await postEntry({
+          type: "ingredient",
+          name: "Food",
+          cookTime,
+        });
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test("success case", async () => {
+      const res1 = await postEntry({
+        type: "ingredient",
+        name: "Food",
+        cookTime: 0,
+      });
+      expect(res1.status).toBe(200);
+
+      const res2 = await postEntry({
+        type: "ingredient",
+        name: "Drink",
+        requiredItems: [{ name: "Food", quantity: 1 }],
+      });
+      expect(res2.status).toBe(200);
+
+      const res3 = await postEntry({
+        type: "ingredient",
+        name: "Snack",
+        cookTime: 100,
+      });
+      expect(res3.status).toBe(200);
     });
 
-    it("Add Recipe", async () => {
-      const meatball = {
+    test("error on posting entires with the same name", async () => {
+      const res1 = await postEntry({
+        type: "ingredient",
+        name: "Food",
+        cookTime: 42,
+      });
+      expect(res1.status).toBe(400);
+
+      const res2 = await postEntry({
         type: "recipe",
-        name: "Meatball",
-        requiredItems: [{ name: "Beef", quantity: 1 }],
-      };
-      const resp1 = await putTask2(meatball);
-      expect(resp1.status).toBe(200);
+        name: "Snack",
+        requiredItems: [{ name: "What", quantity: 1 }],
+      });
+      expect(res2.status).toBe(400);
+
+      const res3 = await postEntry({
+        type: "ingredient",
+        name: "Drink",
+        cookTime: 21,
+      });
+      expect(res3.status).toBe(400);
     });
 
-    it("Congratulations u burnt the pan pt2", async () => {
-      const resp = await putTask2({
-        type: "ingredient",
-        name: "beef",
-        cookTime: -1,
-      });
-      expect(resp.status).toBe(400);
-    });
-
-    it("Congratulations u burnt the pan pt3", async () => {
-      const resp = await putTask2({
-        type: "pan",
-        name: "pan",
-        cookTime: 20,
-      });
-      expect(resp.status).toBe(400);
-    });
-
-    it("Unique names", async () => {
-      const resp = await putTask2({
-        type: "ingredient",
-        name: "Beef",
-        cookTime: 10,
-      });
-      expect(resp.status).toBe(200);
-
-      const resp2 = await putTask2({
-        type: "ingredient",
-        name: "Beef",
-        cookTime: 8,
-      });
-      expect(resp2.status).toBe(400);
-
-      const resp3 = await putTask2({
+    test("error on requiredItems having multiple elements per name", async () => {
+      const res = await postEntry({
         type: "recipe",
-        name: "Beef",
-        cookTime: 8,
+        name: "Munch",
+        requiredItems: [
+          { name: "Drink", quantity: 1 },
+          { name: "Drink", quantity: 2 },
+        ],
       });
-      expect(resp3.status).toBe(400);
+      expect(res.status).toBe(400);
     });
   });
-});
 
-describe("Task 3", () => {
-  describe("GET /summary", () => {
-    const postEntry = async (data) => {
-      return await request("http://localhost:8080").post("/entry").send(data);
+  describe("Task 3", () => {
+    const postEntry = async (entry) => {
+      return await request("http://localhost:8080").post("/entry").send(entry);
     };
 
-    const getTask3 = async (name) => {
+    postEntry({
+      type: "recipe",
+      name: "Spaghetti",
+      requiredItems: [
+        { name: "Meatballs", quantity: 3 },
+        { name: "Pasta", quantity: 1 },
+        { name: "Tomato", quantity: 2 },
+      ],
+    });
+    postEntry({
+      type: "recipe",
+      name: "Meatballs",
+      requiredItems: [
+        { name: "Meat", quantity: 2 },
+        { name: "Eggs", quantity: 1 },
+      ],
+    });
+    postEntry({
+      type: "recipe",
+      name: "Pasta",
+      requiredItems: [
+        { name: "Flour", quantity: 3 },
+        { name: "Eggs", quantity: 1 },
+      ],
+    });
+    postEntry({ type: "ingredient", name: "Meat", cookTime: 5 });
+    postEntry({ type: "ingredient", name: "Eggs", cookTime: 3 });
+    postEntry({ type: "ingredient", name: "Flour", cookTime: 0 });
+    postEntry({ type: "ingredient", name: "Tomato", cookTime: 2 });
+
+    const summarizeRecipe = async (name) => {
       return await request("http://localhost:8080").get(
-        `/summary?name=${name}`
+        `/summary?name=${name}`,
       );
     };
 
-    it("What is bro doing - Get empty cookbook", async () => {
-      const resp = await getTask3("nothing");
-      expect(resp.status).toBe(400);
+    test.each(["Unreal", "Unity", "Godot"])(
+      "error when recipe with corresponding name is not found: '%s'",
+      async (name) => {
+        const res = await summarizeRecipe(name);
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test.each(["Meat", "Eggs", "Flour", "Tomato"])(
+      "error when name isn't recipe name: '%s'",
+      async (name) => {
+        const res = await summarizeRecipe(name);
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test("error when the recipe contains entries that don't exist", async () => {
+      const res = await summarizeRecipe("Snack");
+      expect(res.status).toBe(400);
     });
 
-    it("What is bro doing - Get ingredient", async () => {
-      const resp = await postEntry({
-        type: "ingredient",
-        name: "beef",
-        cookTime: 2,
+    test("success cases", async () => {
+      const res1 = await summarizeRecipe("Meatballs");
+      expect(res1.body).toStrictEqual({
+        name: "Meatballs",
+        cookTime: 13,
+        ingredients: [
+          { name: "Eggs", quantity: 1 },
+          { name: "Meat", quantity: 2 },
+        ],
       });
-      expect(resp.status).toBe(200);
 
-      const resp2 = await getTask3("beef");
-      expect(resp2.status).toBe(400);
-    });
-
-    it("Unknown missing item", async () => {
-      const cheese = {
-        type: "recipe",
-        name: "Cheese",
-        requiredItems: [{ name: "Not Real", quantity: 1 }],
-      };
-      const resp1 = await postEntry(cheese);
-      expect(resp1.status).toBe(200);
-
-      const resp2 = await getTask3("Cheese");
-      expect(resp2.status).toBe(400);
-    });
-
-    it("Bro cooked", async () => {
-      const meatball = {
-        type: "recipe",
-        name: "Skibidi",
-        requiredItems: [{ name: "Bruh", quantity: 1 }],
-      };
-      const resp1 = await postEntry(meatball);
-      expect(resp1.status).toBe(200);
-
-      const resp2 = await postEntry({
-        type: "ingredient",
-        name: "Bruh",
-        cookTime: 2,
+      const res2 = await summarizeRecipe("Pasta");
+      expect(res2.body).toStrictEqual({
+        name: "Pasta",
+        cookTime: 3,
+        ingredients: [
+          { name: "Eggs", quantity: 1 },
+          { name: "Flour", quantity: 3 },
+        ],
       });
-      expect(resp2.status).toBe(200);
 
-      const resp3 = await getTask3("Skibidi");
-      expect(resp3.status).toBe(200);
+      const res3 = await summarizeRecipe("Spaghetti");
+      expect(res3.body).toStrictEqual({
+        name: "Spaghetti",
+        cookTime: 46,
+        ingredients: [
+          { name: "Tomato", quantity: 2 },
+          { name: "Eggs", quantity: 4 },
+          { name: "Flour", quantity: 3 },
+          { name: "Meat", quantity: 6 },
+        ],
+      });
     });
   });
 });
