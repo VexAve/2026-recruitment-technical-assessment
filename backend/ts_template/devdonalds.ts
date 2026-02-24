@@ -106,7 +106,7 @@ app.post("/entry", (req: Request, res: Response) => {
 
 // [TASK 3] ====================================================================
 // Endpoint that returns a summary of a recipe that corresponds to a query name
-const summarize_recipe = (name: string): recipeSummary => {
+const summarizeRecipe = (name: string): recipeSummary => {
   if (!cookbook[name]) {
     throw new Error("a recipe with the corresponding name cannot be found");
   } else if (cookbook[name].type !== "recipe") {
@@ -146,7 +146,7 @@ const summarize_recipe = (name: string): recipeSummary => {
 
 app.get("/summary", (req: Request, res: Request) => {
   try {
-    res.json(summarize_recipe(req.query.name));
+    res.json(summarizeRecipe(req.query.name));
   } catch (error) {
     res.status(400).send(error.message);
   }
