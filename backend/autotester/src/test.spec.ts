@@ -276,7 +276,11 @@ describe("Dylan's Tests", () => {
       });
       expect(res2.status).toBe(200);
 
-      const res3 = await postEntry({ type: "ingredient", name: "Snack", cookTime: 100 });
+      const res3 = await postEntry({
+        type: "ingredient",
+        name: "Snack",
+        cookTime: 100,
+      });
       expect(res3.status).toBe(200);
     });
 
@@ -291,7 +295,7 @@ describe("Dylan's Tests", () => {
       const res2 = await postEntry({
         type: "recipe",
         name: "Snack",
-        requiredItems: [{ name: "Drink", quantity: 1 }],
+        requiredItems: [{ name: "What", quantity: 1 }],
       });
       expect(res2.status).toBe(400);
 
@@ -307,9 +311,109 @@ describe("Dylan's Tests", () => {
       const res = await postEntry({
         type: "recipe",
         name: "Munch",
-        requiredItems: [{ name: "Drink", quantity: 1 }, { name: "Drink", quantity: 2 }],
+        requiredItems: [
+          { name: "Drink", quantity: 1 },
+          { name: "Drink", quantity: 2 },
+        ],
       });
       expect(res.status).toBe(400);
+    });
+  });
+
+  describe("Task 3", () => {
+    const postEntry = async (entry) => {
+      return await request("http://localhost:8080").post("/entry").send(entry);
+    };
+
+    postEntry({
+      type: "recipe",
+      name: "Spaghetti",
+      requiredItems: [
+        { name: "Meatballs", quantity: 3 },
+        { name: "Pasta", quantity: 1 },
+        { name: "Tomato", quantity: 2 },
+      ],
+    });
+    postEntry({
+      type: "recipe",
+      name: "Meatballs",
+      requiredItems: [
+        { name: "Meat", quantity: 2 },
+        { name: "Eggs", quantity: 1 },
+      ],
+    });
+    postEntry({
+      type: "recipe",
+      name: "Pasta",
+      requiredItems: [
+        { name: "Flour", quantity: 3 },
+        { name: "Eggs", quantity: 1 },
+      ],
+    });
+    postEntry({ type: "ingredient", name: "Meat", cookTime: 5 });
+    postEntry({ type: "ingredient", name: "Eggs", cookTime: 3 });
+    postEntry({ type: "ingredient", name: "Flour", cookTime: 0 });
+    postEntry({ type: "ingredient", name: "Tomato", cookTime: 2 });
+
+    const summarizeRecipe = async (name) => {
+      return await request("http://localhost:8080").get(
+        `/summary?name=${name}`,
+      );
+    };
+
+    test.each(["Unreal", "Unity", "Godot"])(
+      "error when recipe with corresponding name is not found: '%s'",
+      async (name) => {
+        const res = await summarizeRecipe(name);
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test.each(["Meat", "Eggs", "Flour", "Tomato"])(
+      "error when name isn't recipe name: '%s'",
+      async (name) => {
+        const res = await summarizeRecipe(name);
+        expect(res.status).toBe(400);
+      },
+    );
+
+    test("error when the recipe contains entries that don't exist", async () => {
+      const res = await summarizeRecipe("Snack");
+      expect(res.status).toBe(400);
+    });
+
+    test("success cases", async () => {
+      const res1 = await summarizeRecipe("Meatballs");
+      expect(res1.body).toStrictEqual({
+        name: "Meatballs",
+        cookTime: 13,
+        ingredients: [
+          { name: "Eggs", quantity: 1 },
+          { name: "Meat", quantity: 2 },
+        ],
+      });
+
+      const res2 = await summarizeRecipe("Pasta");
+      expect(res2.body).toStrictEqual({
+        name: "Pasta",
+        cookTime: 3,
+        ingredients: [
+          { name: "Eggs", quantity: 1 },
+          { name: "Flour", quantity: 3 },
+        ],
+      });
+
+      const res3 = await summarizeRecipe("Spaghetti");
+      expect(res3.body).toStrictEqual({
+        name: "Spaghetti",
+        cookTime: 46,
+        ingredients: [
+          { name: "Tomato", quantity: 2 },
+          { name: "Eggs", quantity: 4 },
+          { name: "Flour", quantity: 3 },
+          { name: "Meat", quantity: 6 },
+        ],
+      });
     });
   });
 });
