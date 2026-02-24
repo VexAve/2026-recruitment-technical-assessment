@@ -128,7 +128,11 @@ const summarizeRecipe = (name: string): recipeSummary => {
     }
 
     if (currEntry.type === "recipe") {
-      stack = stack.concat(currEntry.requiredItems);
+      const nextNodes = currEntry.requiredItems.map(({ name, quantity }) => ({
+        name,
+        quantity: currNode.quantity * quantity,
+      }));
+      stack = stack.concat(nextNodes);
     } else {
       cookTime += currEntry.cookTime * currNode.quantity;
       ingredientsMap[currNode.name] =
